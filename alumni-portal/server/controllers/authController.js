@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const generateOTP = require('../utils/generateOTP');
 const sendEmail = require('../utils/sendEmail');
-const { otpEmailTemplate, welcomeEmailTemplate } = require('../utils/emailTemplates');
+const { otpEmailTemplate } = require('../utils/emailTemplates');
 
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' });
@@ -67,11 +67,18 @@ exports.register = async (req, res) => {
     await Profile.create({ userId: user._id });
 
     const otp = await saveOTP(email, 'EMAIL_VERIFY');
-    await sendEmail({
-      to: email,
-      subject: '🎓 Alumni Portal — Verify Your Email',
-      html: otpEmailTemplate(name, otp, 'EMAIL_VERIFY'),
-    });
+
+    // Send email but don't crash registration if email fails
+    try {
+      await sendEmail({
+        to: email,
+        subject: '🎓 Alumni Portal — Verify Your Email',
+        html: otpEmailTemplate(name, otp, 'EMAIL_VERIFY'),
+      });
+      console.log('✅ OTP email sent to ' + email);
+    } catch (emailErr) {
+      console.error('❌ Email failed:', emailErr.message);
+    }
 
     res.status(201).json({
       success: true,
