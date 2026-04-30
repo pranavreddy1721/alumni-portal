@@ -13,6 +13,10 @@ require('dotenv').config();
 const app = express();
 const server = http.createServer(app);
 
+// ─── Trust Proxy (REQUIRED for Render.com) ───────────────
+// Render sits behind a proxy, this fixes express-rate-limit
+app.set('trust proxy', 1);
+
 // ─── Socket.io Setup ─────────────────────────────────────
 const io = new Server(server, {
   cors: {
@@ -24,9 +28,9 @@ const io = new Server(server, {
 
 // ─── Security Middleware ──────────────────────────────────
 app.use(helmet());
-app.use(mongoSanitize());   // Block NoSQL injection
-app.use(xss());             // Block XSS attacks
-app.use(hpp());             // Block HTTP param pollution
+app.use(mongoSanitize());
+app.use(xss());
+app.use(hpp());
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
@@ -41,22 +45,29 @@ const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   message: { message: 'Too many requests. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
+
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 20,
   message: { message: 'Too many auth attempts. Try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
+
 const otpLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 3,
+  max: 5,
   message: { message: 'Too many OTP requests. Wait 1 minute.' },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 app.use('/api/', generalLimiter);
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
-app.use('/api/auth/send-otp', otpLimiter);
 app.use('/api/auth/forgot-password', otpLimiter);
 app.use('/api/auth/resend-otp', otpLimiter);
 
@@ -121,6 +132,7 @@ mongoose
     server.listen(PORT, () => {
       console.log(`✅ Server running on port ${PORT}`);
       console.log(`✅ Mode: ${process.env.NODE_ENV}`);
+      console.log(`✅ Client URL: ${process.env.CLIENT_URL}`);
     });
   })
   .catch((err) => {
