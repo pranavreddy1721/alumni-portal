@@ -1,30 +1,49 @@
-const nodemailer = require('nodemailer');
+const https = require('https');
 
 const sendEmail = async ({ to, subject, html }) => {
-  try {
-    const transporter = nodemailer.createTransport({
-      host: 'smtp-relay.brevo.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.BREVO_USER,
-        pass: process.env.BREVO_PASS,
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify({
+      sender: { name: 'Alumni Portal', email: 'a9c943001@smtp-brevo.com' },
+      to: [{ email: to }],
+      subject: subject,
+      htmlContent: html,
+    });
+
+    const options = {
+      hostname: 'api.brevo.com',
+      port: 443,
+      path: '/v3/smtp/email',
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json',
+        'content-length': Buffer.byteLength(data),
       },
+    };
+
+    const req = https.request(options, (res) => {
+      let body = '';
+      res.on('data', (chunk) => { body += chunk; });
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          console.log(`✅ Email sent via Brevo API → ${to}`);
+          resolve({ success: true });
+        } else {
+          console.error(`❌ Brevo API error ${res.statusCode}:`, body);
+          reject(new Error(`Brevo API error: ${res.statusCode} - ${body}`));
+        }
+      });
     });
 
-    await transporter.sendMail({
-      from: `"Alumni Portal 🎓" <${process.env.BREVO_USER}>`,
-      to,
-      subject,
-      html,
+    req.on('error', (error) => {
+      console.error('❌ Email request error:', error.message);
+      reject(error);
     });
 
-    console.log(`✅ Email sent → ${to}`);
-    return { success: true };
-  } catch (error) {
-    console.error('❌ Email failed:', error.message);
-    throw new Error('Email could not be sent: ' + error.message);
-  }
+    req.write(data);
+    req.end();
+  });
 };
 
 module.exports = sendEmail;
