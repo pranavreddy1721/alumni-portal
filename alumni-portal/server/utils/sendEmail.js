@@ -27,17 +27,17 @@ const sendEmail = async ({ to, subject, html }) => {
       res.on('data', (chunk) => { body += chunk; });
       res.on('end', () => {
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          console.log(`✅ Email sent via Brevo API → ${to}`);
+          console.log('✅ Email sent via Brevo API →', to);
           resolve({ success: true });
         } else {
-          console.error(`❌ Brevo API error ${res.statusCode}:`, body);
-          reject(new Error(`Brevo API error: ${res.statusCode} - ${body}`));
+          console.error('❌ Brevo API error:', res.statusCode, body);
+          reject(new Error('Brevo API error: ' + res.statusCode));
         }
       });
     });
 
     req.on('error', (error) => {
-      console.error('❌ Email request error:', error.message);
+      console.error('❌ Request error:', error.message);
       reject(error);
     });
 
