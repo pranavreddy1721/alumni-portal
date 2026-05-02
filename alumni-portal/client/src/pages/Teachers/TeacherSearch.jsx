@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../../services/api';
 import toast from 'react-hot-toast';
 
-const DEPARTMENTS = ['Computer Science','Information Technology','Electronics','Mechanical','Civil','Chemical','MBA','MCA'];
+const DEPARTMENTS = ['Computer Science','IOT & CSBT','Artificial Intelligence & Data Science','Mechanical','Civil','Electrical','BBA','BCA'];
 
 const Avatar = ({ name='', size=48, url='' }) => {
   const colors = ['#7c3aed','#4f46e5','#0891b2','#059669','#d97706'];
