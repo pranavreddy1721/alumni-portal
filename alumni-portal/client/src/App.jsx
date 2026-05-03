@@ -27,6 +27,7 @@ import JobList       from './pages/Jobs/JobList';
 import EventList     from './pages/Events/EventList';
 import MyProfile     from './pages/profile/MyProfile';
 import ViewProfile   from './pages/profile/ViewProfile';
+import ChatPage      from './pages/Chat/ChatPage';
 
 // ── Placeholders ─────────────────────────────────────────────
 const Soon = ({ title, emoji }) => (
@@ -60,12 +61,12 @@ const AppLayout = () => {
     jobs:      <JobList />,
     events:    <EventList />,
     profile:   <MyProfile />,
+    chat:      <ChatPage />,
     users:     <AdminDashboard />,
     approvals: <AdminDashboard />,
     analytics: <SuperAdminDashboard />,
     admins:    <SuperAdminDashboard />,
     settings:  <Soon title="System Settings" emoji="⚙️" />,
-    chat:      <Soon title="Messages" emoji="💬" />,
   };
 
   return (

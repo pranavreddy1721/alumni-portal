@@ -72,12 +72,13 @@ app.use('/api/auth/forgot-password', otpLimiter);
 app.use('/api/auth/resend-otp', otpLimiter);
 
 // ─── Routes ──────────────────────────────────────────────
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/auth',     require('./routes/authRoutes'));
+app.use('/api/users',    require('./routes/userRoutes'));
 app.use('/api/profiles', require('./routes/profileRoutes'));
-app.use('/api/jobs', require('./routes/jobRoutes'));
-app.use('/api/events', require('./routes/eventRoutes'));
-app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/jobs',     require('./routes/jobRoutes'));
+app.use('/api/events',   require('./routes/eventRoutes'));
+app.use('/api/admin',    require('./routes/adminRoutes'));
+app.use('/api/messages', require('./routes/messageRoutes'));
 
 // ─── Health Check ─────────────────────────────────────────
 app.get('/', (req, res) => {
